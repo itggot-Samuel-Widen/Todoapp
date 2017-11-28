@@ -1,6 +1,6 @@
 class App < Sinatra::Base
 
-	enable :sessions 
+	enable :sessions
 
 	get '/' do
 		slim(:index)
@@ -24,6 +24,10 @@ class App < Sinatra::Base
 		end
 	end
 
+	get '/login_error' do
+		slim(:login_error)
+	end
+
 	get '/register' do
 		slim(:register)
 	end
@@ -35,15 +39,56 @@ class App < Sinatra::Base
 	post '/create' do
 		db = SQLite3::Database.new("todoapp.sqlite")
 		password = params[:password]
+		if password.length < 1
+			redirect('/password_error')
+		end
+		# if password.length < 1
+		# 	flash[:error_message] = "You can't register without a password"
+		# 	redirect('/')
+		# end
 		password_digest = BCrypt::Password.create( password )
-		# p password_digest					#Felsökte databasens "BLOB" issue, bcrypt funkar som förväntat trots det. 
+		# p password_digest					#Felsökte databasens "BLOB" issue, bcrypt funkar som förväntat trots det.
 		# if password_digest == "cool"
 		# 	p "Cool password"
 		# else
 		# 	p "uncool password bruh"
 		# end
 		username = params[:username]
+		if username.length < 1
+			redirect('/username_error')
+		end
 		db.execute("INSERT INTO Users (username, password) VALUES(?,?)", [username, password_digest])
 		redirect '/registered'
-	end 
-end           
+	end
+
+	get '/password_error' do
+		slim(:password_error)
+	end
+
+	get '/username_error' do
+		slim(:username_error)
+	end
+
+	get '/notes' do
+		if session[:logged_in] == true
+			slim(:notes)
+			#user_id = session[:user_id]
+		else
+			slim(:not_logged_in)
+		end
+	end
+
+	get '/logout' do
+		session[:logged_in] = false
+		session[:user_id] = nil
+		redirect '/'
+	end
+
+	post '/create_note' do
+		user_id = session[:user_id]
+		note_content = params[:note_content]
+		db = SQLite3::Database.new("todoapp.sqlite")
+		db.execute("INSERT INTO Notes (content, user_id) VALUES(?,?)", [note_content, user_id])
+		redirect '/notes'
+	end
+end
