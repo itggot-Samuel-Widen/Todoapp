@@ -2,11 +2,15 @@ title Welcome to Note.com
 
 h1 Welcome to Note.com!
 
-/ h1= -flash[:error_message]
+if params[:error_message] != nil
+    h2 params[:error_message]
+
+ 
+
 
 form action='/login' method='POST'
     input type="text" placeholder="Username" name="username"
     input type="password" placeholder='Password' name="password"
     input type="submit" value="Log in"
 
-a href="/register" Want to register?
+a href="/register" Want to register?       
