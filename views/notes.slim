@@ -10,8 +10,11 @@ a href="/logout" Log out
 -db = SQLite3::Database.new("todoapp.sqlite")
 -all_notes = db.execute("SELECT content FROM Notes Where user_id IS ?", session[:user_id])
 -for note_content in all_notes
+  - note_id = db.execute("SELECT id FROM Notes WHERE user_id IS ? AND content IS ?", [session[:user_id], note_content])
   form action='/edit_note' method='POST'
-    input type="text" value='#{note_content}'
+    input type="text" value='#{note_content[0]}' name="note_content"
     input type="submit" value="Edit"
+    input type="hidden" value="#{note_id}" name="note-id"
+    /input type="hidden" value="User-ID" name="User-ID"
 
-p= all_notes
+/p= all_notes

@@ -91,4 +91,13 @@ class App < Sinatra::Base
 		db.execute("INSERT INTO Notes (content, user_id) VALUES(?,?)", [note_content, user_id])
 		redirect '/notes'
 	end
+
+	post '/edit_note' do
+		updated_content = params[:note_content]
+		note_id = params[:note_id]
+		db = SQLite3::Database.new("todoapp.sqlite")
+		note_content = db.execute("SELECT content FROM Notes WHERE id IS ?", note_id)
+		db.execute("UPDATE Notes SET content=? WHERE id IS ?", [updated_content, note_id]) #doesn't update at all 
+		redirect '/notes'
+	end
 end
